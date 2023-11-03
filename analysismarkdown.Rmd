@@ -1,0 +1,584 @@
+---
+title: "Wordle Analysis"
+author: "Louisa Swintosky"
+date: "2023-10-30"
+output: html_document
+---
+
+<link href="https://fonts.cdnfonts.com/css/franklin-gothic" rel="stylesheet">
+
+<style>
+  body {
+    font-family: 'Franklin Gothic', sans-serif;
+  }
+</style>
+
+                
+```{r, echo=FALSE, results='hide', warning=FALSE}
+
+
+
+wordle_list = readLines("wordle-answers-alphabetical.txt")
+head(wordle_list)
+
+?strsplit
+?substr
+
+# want to separate each word by its letter 
+# to do analysis on letter placement and letter frequencies
+
+letters_list = lapply(wordle_list, function(word) strsplit(word, split = "")[[1]])
+head(letters_list)
+
+# go with this method instead
+first_letter1 = sapply(wordle_list, function(word) substr(word, 1, 1))
+
+wordle_df1 = data.frame(first_letter1)
+head(wordle_df1)
+# like this method
+# want to automate it to do this for all 5 letters
+
+letter_vector = function(word_list, position){
+  sapply(wordle_list, function(word) substr(word, start=position, stop=position))
+}
+
+first_letter = letter_vector(wordle_list, 1)
+sum(first_letter != first_letter1)
+# check shows function works
+
+second_letter = letter_vector(wordle_list, 2)
+third_letter = letter_vector(wordle_list, 3)
+fourth_letter = letter_vector(wordle_list, 4)
+fifth_letter = letter_vector(wordle_list, 5)
+
+# put into dataframe
+wordle_df = data.frame(first_letter, second_letter, third_letter, fourth_letter, fifth_letter)
+head(wordle_df)
+
+class(first_letter)
+wordle_df[] = lapply(wordle_df, factor)
+summary(wordle_df)
+
+```
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+library(gt)
+library(gtExtras)
+library(dplyr)
+
+#head(wordle_list)
+wordletable = head(wordle_df) %>%
+  gt() %>%
+  gt_theme_nytimes() %>%
+  tab_header(title = "Head of Wordle DF")
+wordletable
+```
+
+
+## First Letter Position
+```{r, echo=FALSE}
+
+
+library(gt)
+library(gtExtras)
+library(dplyr)
+library(ggplot2)
+
+
+first = wordle_df %>%
+  group_by(first_letter) %>%
+  summarize(count = n()) %>%
+  mutate(freq = count/sum(count),
+         position = "1st") %>%
+  arrange(desc(count))
+
+
+
+
+#library(patchwork)
+#grid.arrange(tableGrob(nyt_table), tableGrob(nyt_table2), ncol=2)
+
+library(patchwork)
+
+p1 = ggplot(first, aes(x= first_letter, y = freq)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  labs(x = "Letter", y = "Frequency", title = "Frequency of First Letters") +
+  theme_minimal()
+
+#theme_wsj() +
+  #labs(x = "First Letter", y = "Frequency", title = "Frequency of First Letters") +
+  #theme(legend.position = "none", plot.background = element_rect(fill = "white"), panel.background = element_rect(fill = "white")) 
+
+
+p2 = ggplot(wordle_df, aes(x=first_letter)) +
+  geom_bar(fill = "skyblue") +
+  coord_polar(theta = "x") +
+  labs(x = "Letter", y = "Count", title = "Frequency of First Letters") +
+  theme_minimal()
+
+combined_plot = p1 + p2
+print(combined_plot)
+```
+
+
+
+```{r, echo=FALSE}
+nyt_table1a = head(first,7) %>%
+  select(-position) %>%
+  gt() %>%
+  gt_theme_nytimes() %>%
+  fmt_number(columns = "freq", decimals = 4) %>%
+  tab_header(title = "Top 7")
+nyt_table1a
+
+nyt_table1b = tail(first,5) %>%
+  select(-position) %>%
+  gt() %>%
+  gt_theme_nytimes() %>%
+  fmt_number(columns = "freq", decimals = 4) %>%
+  tab_header(title = "Bottom 5")
+nyt_table1b
+```
+
+
+* The seven most commonly occurring first letters in this context are 's,' 'c,' 'b,' 't,' 'p,' 'a,' and 'f.'
+   - Among these, 's' is notably twice as common as the runner-up, 'c.'
+   - It's also worth noting that among these seven, only one is a vowel.
+* On the other hand, the five least common first letters are 'z,' 'y,' 'k,' 'j,' and 'q.'
+* There are clear winners among the first letters, as specific letters are much more commonly used than many others, occurring more than 5% of the time.
+* Conversely, there are clear losers among the first letters, as some occur less than 1% of the time.
+
+## Second Letter Position
+
+```{r, echo=FALSE}
+second = wordle_df %>%
+  group_by(second_letter) %>%
+  summarize(count = n()) %>%
+  mutate(freq = count/sum(count),
+         position = "2nd") %>%
+  arrange(desc(count))
+
+p1 = ggplot(second, aes(x=second_letter, y=freq)) +
+  geom_bar(stat = "identity", fill = "lightgreen") +
+  labs(x = "Letter", y = "Frequency", title = "Frequency of Second Letters") +
+  theme_minimal()
+
+p2 = ggplot(wordle_df, aes(x=second_letter)) +
+  geom_bar(fill = "lightgreen") +
+  coord_polar(theta = "x") +
+  labs(x = "Letter", y = "Count", title = "Frequency of Second Letters") +
+  theme_minimal()
+
+combined_plot = p1 + p2
+print(combined_plot)
+
+```
+
+* The distribution of second letter frequencies appears significantly different from that of the first letters. It's evident that approximately one-third of the letters are very common, while the remaining two-thirds are relatively uncommon.
+* Among the second letters, there is a higher level of competition for the most popular letter slots.
+
+```{r, echo=FALSE}
+nyt_table2a = head(second,8) %>%
+  select(-position) %>%
+  gt() %>%
+  gt_theme_nytimes() %>%
+  fmt_number(columns = "freq", decimals = 4) %>%
+  tab_header(title = "Top 8")
+nyt_table2a 
+
+nyt_table2b = tail(second,5) %>%
+  select(-position) %>%
+  gt() %>%
+  gt_theme_nytimes() %>%
+  fmt_number(columns = "freq", decimals = 4) %>%
+  tab_header(title = "Bottom 5")
+nyt_table2b
+```
+
+
+* The eight most common second letters are 'a,' 'o,' 'r,' 'e,' 'i,' 'l,' 'u,' and 'h.'
+  - The top four among these occur more than 10% of the time, and all eight occur more than 6% of the time.
+  - It's noteworthy that all the vowels are included among the most common second letters.
+
+* Conversely, the five least common second letters are 'z,' 'j,' 'q,' 'f,' and 'k.'
+  - Interestingly, the least common second letters overlap with the least common first letters, with the exception of 'f' replacing 'y.'
+  - All of these five letters occur less than 0.5% of the time.
+
+
+
+
+## Third Letter Position
+
+```{r, echo=FALSE}
+third = wordle_df %>%
+  group_by(third_letter) %>%
+  summarize(count = n()) %>%
+  mutate(freq = count/sum(count),
+         position = "3rd") %>%
+  arrange(desc(count))
+
+
+ggplot(third, aes(x=third_letter, y=freq)) +
+  geom_bar(stat = "identity", fill = "lightsalmon") +
+  labs(x = "Letter", y = "Frequency", title = "Frequency of Third Letters") +
+  theme_minimal()
+
+```
+
+* The distribution of third letter frequencies appears to be much more varied, and it seems like these frequencies would gradually descend if ordered by frequency.
+
+```{r, echo=FALSE}
+nyt_table3a = head(third,7) %>%
+  select(-position) %>%
+  gt() %>%
+  gt_theme_nytimes() %>%
+  fmt_number(columns = "freq", decimals = 4) %>%
+  tab_header(title = "Top 7")
+nyt_table3a
+
+nyt_table3b = tail(third,6) %>%
+  select(-position) %>%
+  gt() %>%
+  gt_theme_nytimes() %>%
+  fmt_number(columns = "freq", decimals = 4) %>%
+  tab_header(title = "Bottom 6")
+nyt_table3b
+```
+
+* The seven most common third letters are 'a,' 'i,' 'o,' 'e,' 'u,' 'r,' and 'n.'
+  - Among these, the top three occur more than 10% of the time, and all seven occur over 6% of the time.
+  - As expected, the top five positions are occupied by vowels.
+* The six least common third letters are 'q,' 'j,' 'h,' 'z,' 'x,' and 'k.'
+  - Notably, a new least common letter, 'h,' appears.
+  - For the first time, 'q' surpasses 'z' as the most least common letter.
+  - All of these six letters occur less than 0.6% of the time.
+
+
+
+## Fourth Letter Position
+
+```{r, echo=FALSE}
+fourth = wordle_df %>%
+  group_by(fourth_letter) %>%
+  summarize(count = n()) %>%
+  mutate(freq = count/sum(count),
+         position = "4th") %>%
+  arrange(desc(count))
+
+ggplot(fourth, aes(x=fourth_letter, y=freq)) +
+  geom_bar(stat = "identity", fill = "lightpink") +
+  labs(x = "Letter", y = "Frequency", title = "Frequency of Fourth Letters") +
+  theme_minimal()
+
+```
+
+
+* The distribution of letter placement frequencies appears to be more balanced, with all of the letters being used more frequently than some of the other letter placements. This results in only one stand-out winner for the most common letter and three stand-out losers among the least common.
+  - It seems that the mean frequency for all of the letters is a more representative measure for this graph compared to the other three positions, and it's likely around 3.5%.
+  - Let's see...
+
+```{r, echo=FALSE}
+ggplot(fourth, aes(x=fourth_letter, y=freq)) +
+  geom_bar(stat = "identity", fill = "lightpink") +
+  labs(x = "Letter", y = "Frequency", title = "Frequency of Fourth Letters") +
+  theme_minimal() + 
+  geom_hline(yintercept = mean(fourth$freq), linetype = "dashed", color = "darkblue") + 
+  annotate("text", x = "y", y = mean(fourth$freq) + .0025, label = "Mean", color = "black") +
+  geom_hline(yintercept = median(fourth$freq), linetype = "dashed", color = "darkgreen") +
+  annotate("text", x = "y", y = median(fourth$freq) + .0025, label = "Median", color = "black")
+
+```
+
+
+```{r, echo=FALSE}
+nyt_table4a = head(fourth,9) %>%
+  select(-position) %>%
+  gt() %>%
+  gt_theme_nytimes() %>%
+  fmt_number(columns = "freq", decimals = 4) %>%
+  tab_header(title = "Top 9")
+nyt_table4a
+
+nyt_table4b = tail(fourth,5) %>%
+  select(-position) %>%
+  gt() %>%
+  gt_theme_nytimes() %>%
+  fmt_number(columns = "freq", decimals = 4) %>%
+  tab_header(title = "Bottom 5")
+nyt_table4b
+```
+
+* The nine most common letter placements are 'e,' 'n,' 's,' 'a,' 'l,' 'i,' 'c,' 'r,' and 't.'
+  - The most common letter, 'e,' occurs almost double as often as the second most common letter, 'n.'
+  - The top five of these occur over 7% of the time, and all nine occur over 6% of the time.
+  - Notably, 'u' and 'o' are missing vowels.
+
+* The five least common letter placements are 'j,' 'y,' 'x,' 'z,' and 'b.'
+  - A new least common letter, 'b,' appears in this group.
+  - All of these five letter placements occur less than 1% of the time, with the bottom three occurring less than 0.2% of the time.
+
+
+
+
+
+## Fifth Letter Position
+
+```{r, echo=FALSE}
+fifth = wordle_df %>%
+  group_by(fifth_letter) %>%
+  summarize(count = n()) %>%
+  mutate(freq = count/sum(count),
+         position = "5th") %>%
+  arrange(desc(count))
+
+p1 = ggplot(fifth, aes(x=fifth_letter, y=freq)) +
+  geom_bar(stat = "identity", fill = "plum") +
+  labs(x = "Letter", y = "Frequency", title = "Frequency of Fifth Letters") +
+  theme_minimal()
+
+p2 = ggplot(fifth, aes(x=fifth_letter, y=freq)) +
+  geom_bar(stat = "identity", fill = "plum") +
+  labs(x = "Letter", y = "Frequency", title = "Frequency of Fifth Letters") +
+  theme_minimal() + 
+  geom_hline(yintercept = mean(fifth$freq), linetype = "dashed", color = "darkblue") + 
+  annotate("text", x = "y", y = mean(fifth$freq) + .0025, label = "Mean", color = "black") +
+  geom_hline(yintercept = median(fifth$freq), linetype = "dashed", color = "darkgreen") +
+  annotate("text", x = "y", y = median(fifth$freq) + .0025, label = "Median", color = "black")
+
+combined_plot = p1 + p2
+print(combined_plot)
+```
+
+
+* The distribution of fifth letter placement frequencies appears to be very split, likely resembling an exponential curve if ordered by frequency.
+* Among the fourth letter placements, there is a clear distinction between the most popular letter and the runner-up, but also a clear distinction between runner up and the rest of the letters.
+
+```{r, echo=FALSE}
+
+nyt_table5a = head(fifth,8) %>%
+  gt() %>%
+  gt_theme_nytimes() %>%
+  fmt_number(columns = "freq", decimals = 4) %>%
+  tab_header(title = "Top 8")
+nyt_table5a
+
+nyt_table5b = tail(fifth,6) %>%
+  gt() %>%
+  gt_theme_nytimes() %>%
+  fmt_number(columns = "freq", decimals = 4) %>%
+  tab_header(title = "Bottom 6")
+nyt_table5b
+
+```
+
+
+* The eight most common fifth letter placements are 'e,' 'y,' 't,' 'r,' 'l,' 'h,' 'n,' and 'd.'
+  - The top two letters are very high in frequency.
+  - The top three among these occur over 10% of the time, and all eight occur over 5% of the time.
+  - 'u' and 'o' are missing vowels. 
+
+* The six least common fifth letter placements are 'u,' 'z,' 'x,' 'i,' 'b,' and 'w.'
+  - Vowels are present in the bottom six for the first time, which is expected given the relative rarity of these placements.
+  - A new least common letter, 'b,' appears in this group.
+  - All six of these placements occur less than 1% of the time, with all except 'w' occurring less than 0.05% of the time.
+
+
+
+```{r, echo=FALSE}
+# MISSING LETTERs
+#length(first$first_letter)
+#length(second$second_letter)
+#length(third$third_letter)
+#length(fourth$fourth_letter)
+#length(fifth$fifth_letter)
+#missing letters in 1st, 4th, and 5th
+missing_1 <- setdiff(letters, unique(as.character(first$first_letter)))
+#print(missing_1)
+missing_4 <- setdiff(letters, unique(as.character(fourth$fourth_letter)))
+#print(missing_4)
+missing_5 <- setdiff(letters, unique(as.character(fifth$fifth_letter)))
+#print(missing_5)
+#presumably this would suggest that a user shouldn't be able to these letters in these positions 
+#therefore they are not necessarily deserving to be on the bottom list to avoid using 
+# since it shouldn't be possible
+# of course there are likely some exceptions 
+# go back and add these 
+
+
+# combine 1st 2nd through 5th into one data frame to see the frequencies of each letter 
+  # for each letter placement
+
+new_df = bind_rows(first, second, third, fourth, fifth, .id = "position")
+
+new_df <- new_df %>%
+  mutate(letter = coalesce(first_letter, second_letter, third_letter, fourth_letter, fifth_letter)) %>%
+  select(-first_letter, -second_letter, -third_letter, -fourth_letter, -fifth_letter) 
+
+new_df <- new_df %>%
+  select(letter, position, freq, count)
+
+#head(new_df)
+
+
+# need to be added to data for more comprehensive stats
+# first letter - missing x
+# fourth letter - missing q
+# fifth letter - missing j,q,v
+missingletters <- tibble(letter = factor(c("x", "q", "j", "q", "v")), position = as.character(c(1, 4, 5, 5, 5)),
+                         freq = c(0, 0, 0, 0, 0), count = as.integer(c(0, 0, 0, 0, 0)))
+
+new_df <- new_df %>%
+  bind_rows(missingletters)
+
+
+
+
+```
+
+
+# Stacked Graph
+
+```{r, echo=FALSE}
+custom_colors = c("1" = "skyblue", "2" = "lightgreen", "3" = "lightsalmon", 
+                  "4" = "lightpink", "5" = "plum")
+
+ggplot(new_df, aes(letter, freq, fill = position)) +
+  geom_bar(stat = "identity", position = "stack") + 
+  scale_fill_manual(values = custom_colors, name = "Position") + 
+  labs(x = "Letter", y = "Frequency", title = "Frequency of Letters") +
+  theme_minimal()
+
+```
+
+# Boxplot
+
+```{r, echo=FALSE}
+ggplot(new_df, aes(position, freq, fill = position)) +
+  geom_boxplot() +
+  scale_fill_manual(values = custom_colors) + 
+  labs(x = "Position", y = "Frequency", title = "Frequency of Letters by Position") +
+  theme_minimal() + 
+  theme(legend.position = "none")
+```
+
+Outliers in 1, 3, & 5.
+
+
+
+# Barcharts Ordered
+
+
+
+```{r, echo=FALSE}
+library(patchwork)
+pos1 = new_df %>%
+  filter(position == "1")
+pos2 = new_df %>%
+  filter(position == "2")
+pos3 = new_df %>%
+  filter(position == "3")
+pos4 = new_df %>%
+  filter(position == "4")
+pos5 = new_df %>%
+  filter(position == "5")
+  
+p1 = ggplot(pos1, aes(x= reorder(letter, -freq), y=freq)) +
+  geom_bar(stat = "identity", fill = "lightblue") +
+  labs(x = "Letter", y = "Frequency", title = "Frequency of Letters in 1st Position") +
+  theme_minimal()
+p2 = ggplot(pos2, aes(x= reorder(letter, -freq), y=freq)) +
+  geom_bar(stat = "identity", fill = "lightgreen") +
+  labs(x = "Letter", y = "Frequency", title = "Frequency of Letters in 2nd Position") +
+  theme_minimal()
+p3 = ggplot(pos3, aes(x= reorder(letter, -freq), y=freq)) +
+  geom_bar(stat = "identity", fill = "lightsalmon") +
+  labs(x = "Letter", y = "Frequency", title = "Frequency of Letters in 3rd Position") +
+  theme_minimal()
+p4 = ggplot(pos4, aes(x= reorder(letter, -freq), y=freq)) +
+  geom_bar(stat = "identity", fill = "lightpink") +
+  labs(x = "Letter", y = "Frequency", title = "Frequency of Letters in 4th Position") +
+  theme_minimal()
+p5 = ggplot(pos5, aes(x= reorder(letter, -freq), y=freq)) +
+  geom_bar(stat = "identity", fill = "plum") +
+  labs(x = "Letter", y = "Frequency", title = "Frequency of Letters in 5th Position") +
+  theme_minimal()
+
+combined_plot <- p1 + p2
+print(combined_plot)
+combined_plot <- p3 + p4
+print(combined_plot)
+print(p5)
+
+```
+
+
+```{r, echo=FALSE}
+
+stats_df = new_df %>%
+  group_by(letter) %>%
+  summarize(count = sum(count)) %>%
+  mutate(freq = count/sum(count))
+
+stats_df1 = stats_df %>%
+  arrange(desc(freq))
+
+#u messed up 
+#sum(stats_df1$count)
+#length(wordle_list)*5
+
+
+
+```
+
+
+
+
+
+
+```{r, echo=FALSE}
+
+#no outliers for all of them 
+
+#1s3a5en//2a4e
+#overall : e/a/r/o/t/l/i/s/n/c
+
+#slane
+#aoreilu
+  
+#which(wordle_list == "slane")
+  
+#head(wordle_df)
+# for overall stats you are counting letter's twice
+
+no_e_rows <- wordle_df %>%
+  filter(!(first_letter == "e" | 
+         second_letter == "e" | 
+         third_letter == "e" |
+         fourth_letter == "e" | 
+         fifth_letter == "e"))
+
+#nrow(no_e_rows)
+#nrow(wordle_df)
+#1259/2315
+
+
+#letters
+#length(letters)
+
+props = 0
+for (i in 1:26){
+  prop = length(wordle_list[!grepl((wordle_list[i]), wordle_list)])/length(wordle_list)
+  props = c(prop, props)
+  
+}
+#props
+no_e_words <- wordle_list[!grepl("a", wordle_list)]
+#length(wordle_list[!grepl(letters[1], wordle_list)])
+
+#sum(no_e_words == noe)
+```
+
+
