@@ -463,3 +463,60 @@ length(wordle_list[!grepl(letters[1], wordle_list)])
 sum(no_e_words == noe)
 
 
+
+
+
+
+nyt_table = head(second) %>%
+  gt() %>%
+  gt_theme_nytimes() %>%
+  tab_header(title = "Frequencies")
+
+library(patchwork)
+grid.arrange(tableGrob(nyt_table), tableGrob(nyt_table2), ncol=2)
+
+nyt_table + nyt_table2
+
+str(first)
+str(second)
+
+
+nyt_table = head(second) %>%
+  gt() %>%
+  gt_theme_nytimes()
+
+bar2 = ggplot(second, aes(x=second_letter, y=freq)) +
+  geom_bar(stat = "identity", fill = "lightgreen") +
+  labs(x = "Second Letter", y = "Frequency", title = "Frequency of Second Letters") +
+  theme_minimal()
+
+
+library(patchwork)
+nyt_table + bar2
+
+grid.arrange(tableGrob(nyt_table), tableGrob(nyt_table2), ncol=2)
+
+combined <- tbl_graph(
+  list(nyt_table, bar2),
+  title = "Table and Plot"
+)
+
+
+grid.arrange(
+  tableGrob(first),
+  tableGrob(second),
+  ncol = 2
+)
+
+table1 <- tableGrob(first)
+table2 <- tableGrob(second)
+
+
+
+
+
+
+
+
+
+

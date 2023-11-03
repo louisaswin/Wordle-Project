@@ -1,7 +1,7 @@
 ---
 title: "Wordle Analysis"
 author: "Louisa Swintosky"
-date: "2023-10-30"
+date: "2023-10-20"
 output: html_document
 ---
 
@@ -123,7 +123,8 @@ combined_plot = p1 + p2
 print(combined_plot)
 ```
 
-
+* There are clear winners among the first letters, as specific letters are much more commonly used than many others, occurring more than 5% of the time.
+* Conversely, there are clear losers among the first letters, as some occur less than 1% of the time.
 
 ```{r, echo=FALSE}
 nyt_table1a = head(first,7) %>%
@@ -147,9 +148,12 @@ nyt_table1b
 * The seven most commonly occurring first letters in this context are 's,' 'c,' 'b,' 't,' 'p,' 'a,' and 'f.'
    - Among these, 's' is notably twice as common as the runner-up, 'c.'
    - It's also worth noting that among these seven, only one is a vowel.
+
 * On the other hand, the five least common first letters are 'z,' 'y,' 'k,' 'j,' and 'q.'
-* There are clear winners among the first letters, as specific letters are much more commonly used than many others, occurring more than 5% of the time.
-* Conversely, there are clear losers among the first letters, as some occur less than 1% of the time.
+   - These letters are unsurprising.
+
+* It is significant to note that "x" is absent from inclusion as a possible first letter. It will be included in the data as having a frequency of zero when all the letter positions are compared. 
+
 
 ## Second Letter Position
 
@@ -207,6 +211,8 @@ nyt_table2b
   - Interestingly, the least common second letters overlap with the least common first letters, with the exception of 'f' replacing 'y.'
   - All of these five letters occur less than 0.5% of the time.
 
+* All letters are utilized at least once. 
+
 
 
 
@@ -251,11 +257,13 @@ nyt_table3b
 * The seven most common third letters are 'a,' 'i,' 'o,' 'e,' 'u,' 'r,' and 'n.'
   - Among these, the top three occur more than 10% of the time, and all seven occur over 6% of the time.
   - As expected, the top five positions are occupied by vowels.
+
 * The six least common third letters are 'q,' 'j,' 'h,' 'z,' 'x,' and 'k.'
   - Notably, a new least common letter, 'h,' appears.
   - For the first time, 'q' surpasses 'z' as the most least common letter.
   - All of these six letters occur less than 0.6% of the time.
 
+* All letters are utilized at least once. 
 
 
 ## Fourth Letter Position
@@ -286,9 +294,9 @@ ggplot(fourth, aes(x=fourth_letter, y=freq)) +
   labs(x = "Letter", y = "Frequency", title = "Frequency of Fourth Letters") +
   theme_minimal() + 
   geom_hline(yintercept = mean(fourth$freq), linetype = "dashed", color = "darkblue") + 
-  annotate("text", x = "y", y = mean(fourth$freq) + .0025, label = "Mean", color = "black") +
+  annotate("text", x = "y", y = mean(fourth$freq) + .005, label = "Mean", color = "black") +
   geom_hline(yintercept = median(fourth$freq), linetype = "dashed", color = "darkgreen") +
-  annotate("text", x = "y", y = median(fourth$freq) + .0025, label = "Median", color = "black")
+  annotate("text", x = "y", y = median(fourth$freq) + .005, label = "Median", color = "black")
 
 ```
 
@@ -319,6 +327,8 @@ nyt_table4b
 * The five least common letter placements are 'j,' 'y,' 'x,' 'z,' and 'b.'
   - A new least common letter, 'b,' appears in this group.
   - All of these five letter placements occur less than 1% of the time, with the bottom three occurring less than 0.2% of the time.
+  
+* It is significant to note that "q" is absent from inclusion as a possible fourth letter. It will be included in the data as having a frequency of zero when all the letter positions are compared. 
 
 
 
@@ -334,22 +344,21 @@ fifth = wordle_df %>%
          position = "5th") %>%
   arrange(desc(count))
 
-p1 = ggplot(fifth, aes(x=fifth_letter, y=freq)) +
-  geom_bar(stat = "identity", fill = "plum") +
-  labs(x = "Letter", y = "Frequency", title = "Frequency of Fifth Letters") +
-  theme_minimal()
+#p1 = ggplot(fifth, aes(x=fifth_letter, y=freq)) +
+#  geom_bar(stat = "identity", fill = "plum") +
+#  labs(x = "Letter", y = "Frequency", title = "Frequency of Fifth Letters") +
+#  theme_minimal()
 
-p2 = ggplot(fifth, aes(x=fifth_letter, y=freq)) +
+ggplot(fifth, aes(x=fifth_letter, y=freq)) +
   geom_bar(stat = "identity", fill = "plum") +
   labs(x = "Letter", y = "Frequency", title = "Frequency of Fifth Letters") +
   theme_minimal() + 
   geom_hline(yintercept = mean(fifth$freq), linetype = "dashed", color = "darkblue") + 
-  annotate("text", x = "y", y = mean(fifth$freq) + .0025, label = "Mean", color = "black") +
+  annotate("text", x = "y", y = mean(fifth$freq) + .005, label = "Mean", color = "black") +
   geom_hline(yintercept = median(fifth$freq), linetype = "dashed", color = "darkgreen") +
-  annotate("text", x = "y", y = median(fifth$freq) + .0025, label = "Median", color = "black")
+  annotate("text", x = "y", y = median(fifth$freq) + .005, label = "Median", color = "black")
 
-combined_plot = p1 + p2
-print(combined_plot)
+
 ```
 
 
@@ -385,6 +394,7 @@ nyt_table5b
   - A new least common letter, 'b,' appears in this group.
   - All six of these placements occur less than 1% of the time, with all except 'w' occurring less than 0.05% of the time.
 
+* It is significant to note that "j", "q", and "v" are absent from inclusion as possible fifth letters. They will be included in the data as having frequencies of zero when all the letter positions are compared. 
 
 
 ```{r, echo=FALSE}
@@ -432,10 +442,6 @@ missingletters <- tibble(letter = factor(c("x", "q", "j", "q", "v")), position =
 
 new_df <- new_df %>%
   bind_rows(missingletters)
-
-
-
-
 ```
 
 
@@ -465,6 +471,38 @@ ggplot(new_df, aes(position, freq, fill = position)) +
 ```
 
 Outliers in 1, 3, & 5.
+
+
+# Basic Statistics 
+
+```{r, echo=FALSE, warning=FALSE}
+#new_df
+#summary(new_df)
+summ_stats = new_df %>%
+  group_by(position) %>%
+  summarize(Average = mean(freq),
+            SD = sd(freq),
+            Min = min(freq),
+            Quantile1 = quantile(freq, .25),
+            Median = median(freq),
+            Quantile3 = quantile(freq, .75),
+            Max = max(freq),
+            IQR = Quantile3 - Quantile1,
+            Range = Max - Min) %>%
+  ungroup() %>%
+  gt() %>%
+  gt_theme_nytimes() %>%
+  tab_header(title = "Summary Statistics by Position") %>%
+  fmt_number(columns = everything(), decimals = 4) %>%
+  gt_color_rows(Average:Range, palette = "ggsci::blue_material")
+
+#gt_hulk_col_numeric(Average:Range, trim = TRUE) 
+  
+summ_stats
+
+#?gt_color_rows()
+
+```
 
 
 
@@ -513,6 +551,7 @@ print(combined_plot)
 print(p5)
 
 ```
+
 
 
 ```{r, echo=FALSE}
