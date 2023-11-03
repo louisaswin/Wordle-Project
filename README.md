@@ -17,14 +17,18 @@ These types of analyses are interesting to me as they expand beyond the game of 
 Future considerations should include the all possible guesses list.
 
 # Presentation
-Transforming this analysis to public viewing allowed further hone my data visualizations and document presentation through R Markdown. I tried to make the presentation match the theme by incorportaing NYT themes and fonts. This was easily the hardest part of the project. In the future I hope to enhance the presentation in the following ways:
+Transforming this analysis to public viewing allowed further hone my data visualizations and document presentation through R Markdown. I tried to make the presentation match the theme by incorportaing NYT themes and fonts. This was easily the hardest part of the project. The project is still very much a work in progress in terms of viewing, in the future I hope to enhance the presentation in the following ways:
 - Work on making the graphs consistent with the NYT theme (this is already in progress, although the font is quite resistant).
 - Address the issue of NYT-themed tables not appearing side by side.
+- Address unequal sized graph in Barcharts Ordered section
+- Have text in line with graphs/tables
 
 ## Credits, Sources, and Disclaimers
 
 - Data for this project was sourced from [here](https://gist.github.com/cfreshman/a03ef2cba789d8cf00c08f767e0fad7b).
 - This project was created for personal use. I am not affiliated with the NYT.
 - [Documentation](https://thomasmock.quarto.pub/gtextras-overview/#/) for NYT themed tables.
-- [Source](https://www.cdnfonts.com/franklin-gothic.font) for NYT Themed font.
+- [Source](https://jthomasmock.github.io/gtExtras/reference/gt_theme_nytimes.html) for NYT Themed font.
+- gtExtras Function [Reference](https://jthomasmock.github.io/gtExtras/reference/index.html)
+- [Examples](https://themockup.blog/posts/2022-06-13-gtextras-cran/) of making tables with gtExtras.
 
